@@ -1,0 +1,75 @@
+<link rel="import" href="/lib/polymer/polymer.html">
+<link rel="import" href="/elements/onion-app/onion-app.html">
+
+<dom-module id="onion-transmission-client">
+	<style>
+		:host {
+			display: block;
+	  		height: 100%;
+			width: 100%;
+		}
+		
+		#sshContainer {
+			height: 100%;
+			width: 100%;
+			padding-top: 50px;
+		   }
+
+		#transmission {
+			background: transparent;
+			border: none;
+			width: 100%;
+			height: 100%;
+			display: block;
+			margin: 0;
+			padding: 0;
+		}
+		
+	</style>
+	<template>
+		<onion-app app-name="Transmission" toolbar-background="#505050">
+			<onion-app-body>
+				<iframe id="transmission" src="{{sourceIP}}"></iframe>
+			</onion-app-body>
+		</onion-app>	
+	</template>
+	<script>
+		'use strict';
+			
+		(function () {
+			var self = null;
+
+			var created = function () {
+				self = this;
+			};
+			
+			var ready = function() {
+				self.title = 'Onion Transmission';
+				
+				onionConsole.getService('onion-session-provider', function (sessionProvider) {
+					self.sessionProvider = sessionProvider;
+
+					if (self.sessionProvider.isAlive() === true) {
+						onionConsole.getService('onion-device-provider', function (deviceProvider) {
+							self.deviceProvider = deviceProvider;
+							
+							//Get IP Address, NetMask
+							deviceProvider.getIP(function (result) {
+								if (result[0].available === true) {
+									self.sourceIP = '//' + result[1].ip + ':9091';
+								};
+							});
+						});
+					}
+				});
+			};
+			
+			Polymer({
+				is: 'onion-transmission-client',
+				created: created,
+				ready: ready,
+				behaviors: [Onion.AppBehavior],
+			});
+		})();
+	</script>
+</dom-module>
